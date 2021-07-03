@@ -25,6 +25,74 @@ Remark when you try to use `docker run` on an image that you don't have already 
 
 We can also create our own docker images. To do so we need to create a `Dockerfile`.
 
+A `Dockerfile` is a text file following a [specific syntax](https://docs.docker.com/engine/reference/builder/) that allows you to declare everything that you have to install and package in your image.
+
+Every line of a Dockerfile is either:
+* another image to import as a base image
+* a command to execute
+* a folder or a file to copy
+
+Example:
+
+```Dockerfile
+FROM alpine:latest
+
+COPY message.txt .
+
+CMD [ "cat" , "message.txt" ]
+
+# This will work too: but prefer the array syntax
+# CMD cat message.txt
+```
+
+This means that we are creating an image based on the alpine image (alpine is a super simplified linux system with all the basic commands pre-installed (cat, ls, echo etc...))
+
+In this image we copy the `message.txt` file in the container's default directory.
+
+This will result in a alpine image that has the "message.txt" in its `$HOME` directory.
+
+In order to create an image from this docker file you need a repertory that contain:
+* The `Dockerfile` file (should be named "Dockerfile")
+* The "message.txt" file (for this tutorial you can check the `create_image` directory, it already has the right content)
+
+Then: 
+
+```sh
+cd create_image/
+docker build -t message_image .
+```
+
+Remark: The "." at the end of the `docker build` command is not a typo, this tells docker where to find the Dockerfile that you are building. This also affect where he is going to find the "files and repertories" that you may want to COPY inside your image.
+
+This will create an image named `message_image`. If the build is successful you should see that image with your `docker images` command.
+
+You run it like this:
+
+```sh
+docker run --rm message_image
+```
+
+At this point, we already have our image. This image contain the "message.txt" file.
+
+CMD is the only "command" in the Dockerfile that doesn't affect the image, but will affect the containers that will be created from this image.
+It tells docker what to do when a container is created from this image.
+
+Remark: this command can be overidden when you create the container (using `docker run`), but it will be the default command if you don't specify one as an option.
+
+Example:
+
+Run the default command:
+```sh
+$ docker run --rm message_image 
+Hello this is me !! 
+```
+
+Override the command, the container will start running something else (in this case it will run `echo hello`). 
+```sh
+$ docker run --rm message_image echo hello
+hello
+```
+
 #### docker volumes
 
 Before we understand docker volumes let's start from an example.
