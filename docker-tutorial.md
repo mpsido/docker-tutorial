@@ -37,6 +37,10 @@ Example:
 ```Dockerfile
 FROM alpine:latest
 
+# This is equivalent to cd
+# Except that this will affect the future container
+# When creating a container from this image, all the commands will run from WORKDIR
+WORKDIR /root
 COPY message.txt .
 
 CMD [ "cat" , "message.txt" ]
@@ -47,9 +51,9 @@ CMD [ "cat" , "message.txt" ]
 
 This means that we are creating an image based on the alpine image (alpine is a super simplified linux system with all the basic commands pre-installed (cat, ls, echo etc...))
 
-In this image we copy the `message.txt` file in the container's default directory.
+In this image we copy the `message.txt` file in the container's WORKDIR directory.
 
-This will result in a alpine image that has the "message.txt" in its `$HOME` directory.
+This will result in a alpine image that has the "message.txt" in its `/root` directory.
 
 In order to create an image from this docker file you need a repertory that contain:
 * The `Dockerfile` file (should be named "Dockerfile")
@@ -110,6 +114,27 @@ In order to avoid that: docker has invented the concept of "docker volumes".
 A "docker volume" is a repertory/directory that is shared between the "host machine" (the host machine means: "the computer running docker") and the container.
 
 Which means every read or write on that directory, no matter if it is performed from the host or the container, will be seen by both of them.
+
+The volume, is always mounted on a repertory. When bound to a volume, the repertory's content will be completely replaced by the content of the volume.
+
+To bind a volume we use the `-v` option of the `docker run` command.
+
+Example:
+
+```sh
+docker run --rm -v $PWD/docker_volumes:/root message_image
+```
+
+This means that the `/root` directory inside the container will be replaced by the content of the hosts's directory (`$PWD/docker_volumes`).
+
+If you use the `message_image` constructed in the previous chapter, and run it with this volume binding, the content of the message that you will see will change.
+
+The `message_image`'s command is displaying the content of `/root/message.txt`.
+
+But we bind a volume to replace the content of `/root` directory. So, when running the image, the message displayed will be the content of the other `message.txt` file.
+
+For this tutorial we created a repertory called `docker_volumes` with another `message.txt` file.
+
 
 ## Cheatsheet
 

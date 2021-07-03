@@ -1,5 +1,6 @@
 FROM alpine:latest
 
+WORKDIR /root
 COPY message.txt .
 
 CMD [ "cat" , "message.txt" ]
